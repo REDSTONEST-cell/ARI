@@ -40,6 +40,7 @@ public class PlayerSaveDataStateService extends StateService<PlayerSaveState> {
     @Override
     protected void onEarlyExit(PlayerSaveState state) {
         Ari.instance.getLog().debug("stop save player {} data", state.getOwner().getName());
+        this.savePlayerData(state);
     }
 
     @Override
