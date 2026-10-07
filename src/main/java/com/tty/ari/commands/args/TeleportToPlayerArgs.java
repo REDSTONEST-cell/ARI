@@ -6,6 +6,7 @@ import com.tty.api.annotations.command.CommandMeta;
 import com.tty.api.command.SuperHandsomeCommand;
 import com.tty.ari.Ari;
 import com.tty.ari.command.RequiredArgumentCommand;
+import com.tty.ari.states.PlayerVanishService;
 import com.tty.ari.tool.PlayerCache;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
@@ -37,7 +38,7 @@ public class TeleportToPlayerArgs extends RequiredArgumentCommand<PlayerSelector
     public void execute(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) return;
         OfflinePlayer offlinePlayer = PlayerCache.getPlayer(args[1]);
-        if (!(offlinePlayer instanceof Player target)) {
+        if (!(offlinePlayer instanceof Player target) || Ari.instance.getStatusManager().get(PlayerVanishService.class).isHiddenFrom(player, target)) {
             sender.sendMessage(Ari.instance.getEngine().directRender(Ari.DATA_SERVICE.getValue("base.on-player.unable-player"), player));
             return;
         }

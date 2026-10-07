@@ -52,13 +52,11 @@ public abstract class RequiredArgumentCommand<T> extends BaseRequiredArgumentCom
 
     protected static CompletableFuture<Set<String>> getPlayerList(CommandSender sender, String content, boolean excludeMyself) {
         CompletableFuture<Set<String>> future = new CompletableFuture<>();
+        PlayerVanishService vanishService = Ari.instance.getStatusManager().get(PlayerVanishService.class);
         Set<String> collect = Bukkit.getServer().getOnlinePlayers().stream()
                 .filter(i -> {
-                    if (!excludeMyself) {
-                        return Ari.instance.getStatusManager().get(PlayerVanishService.class).isNotHaveState(i);
-                    } else {
-                        return Ari.instance.getStatusManager().get(PlayerVanishService.class).isNotHaveState(i) && !sender.getName().equals(i.getName());
-                    }
+                    if (vanishService.isHiddenFrom(sender, i)) return false;
+                    return !excludeMyself || !sender.getName().equals(i.getName());
                 })
                 .map(Player::getName)
                 .collect(Collectors.toSet());

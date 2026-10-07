@@ -8,6 +8,7 @@ import com.tty.ari.Ari;
 import com.tty.ari.command.RequiredArgumentCommand;
 import com.tty.ari.dto.state.player.PlayerAFKState;
 import com.tty.ari.states.PlayerAFKService;
+import com.tty.ari.states.PlayerVanishService;
 import com.tty.ari.tool.PlayerCache;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
@@ -38,7 +39,7 @@ public class AfkArgs extends RequiredArgumentCommand<PlayerSelectorArgumentResol
     @Override
     public void execute(CommandSender sender, String[] args) {
         OfflinePlayer offlinePlayer = PlayerCache.getPlayer(args[1]);
-        if (!(offlinePlayer instanceof Player player)) {
+        if (!(offlinePlayer instanceof Player player) || Ari.instance.getStatusManager().get(PlayerVanishService.class).isHiddenFrom(sender, player)) {
             sender.sendMessage(Ari.instance.getEngine().directRender(Ari.DATA_SERVICE.getValue("base.on-player.unable-player"), offlinePlayer));
             return;
         }

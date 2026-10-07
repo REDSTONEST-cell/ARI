@@ -14,6 +14,13 @@ import java.util.Map;
 
 public class FunctionConfig extends BaseDownloadUrlConfig {
 
+    private static final List<String> DEFAULT_VANISH_PROTECTED_COMMANDS = List.of(
+            "tp", "teleport", "tphere", "tpo", "tpa", "tpahere", "tpask",
+            "kick", "ban", "ban-ip", "tempban",
+            "msg", "tell", "w", "whisper", "m", "pm", "message",
+            "spectate"
+    );
+
     public FunctionConfig() {
         super(Ari.instance, FilePath.FUNCTION_CONFIG.getFullPathInJar());
     }
@@ -60,6 +67,35 @@ public class FunctionConfig extends BaseDownloadUrlConfig {
 
     public List<String> getVanishFlyPermissionNodes() {
         return this.getStringList("vanish.fly-permission-nodes");
+    }
+
+    /**
+     * 玩家在隐身状态下退出后，重新进入服务器时是否自动恢复隐身
+     */
+    public boolean vanishKeepOnRejoin() {
+        return this.getBool("vanish.keep-on-rejoin", true);
+    }
+
+    /**
+     * 开启/关闭隐身时是否广播伪造的退出/加入信息
+     */
+    public boolean vanishFakeMessage() {
+        return this.getBool("vanish.fake-message", true);
+    }
+
+    /**
+     * 隐身状态下是否允许在公屏发送消息
+     */
+    public boolean vanishAllowChat() {
+        return this.getBool("vanish.allow-chat", false);
+    }
+
+    /**
+     * 指向隐身玩家时会被拦截的指令（无法看见隐身玩家的人执行时）
+     */
+    public List<String> getVanishProtectedCommands() {
+        List<String> list = this.getStringList("vanish.protected-commands");
+        return list.isEmpty() ? DEFAULT_VANISH_PROTECTED_COMMANDS : list;
     }
 
 }

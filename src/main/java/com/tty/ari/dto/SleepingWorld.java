@@ -72,7 +72,7 @@ public class SleepingWorld {
     private boolean playerCondition(@NotNull World world) {
         Integer gameRuleValue = world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
         if (gameRuleValue != null) {
-            var a = gameRuleValue * world.getPlayers().size();
+            var a = gameRuleValue * (int) world.getPlayers().stream().filter(p -> !p.isSleepingIgnored()).count();
             //这个世界需要睡下的人
             int numSleepersNeeded = Math.max(a / 100, 1);
             //已经睡下的人

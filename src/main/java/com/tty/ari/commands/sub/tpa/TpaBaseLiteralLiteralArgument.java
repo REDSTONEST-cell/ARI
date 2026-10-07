@@ -7,6 +7,7 @@ import com.tty.ari.command.RequiredArgumentCommand;
 import com.tty.ari.configuration.FunctionConfig;
 import com.tty.ari.dto.state.teleport.PreEntityToEntityState;
 import com.tty.ari.enumType.TeleportType;
+import com.tty.ari.states.PlayerVanishService;
 import com.tty.ari.states.teleport.PreTeleportStateService;
 import com.tty.ari.tool.ConfigUtils;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
@@ -82,6 +83,19 @@ public abstract class TpaBaseLiteralLiteralArgument extends RequiredArgumentComm
     public boolean preCheckIsNotPass(CommandSender sender, String[] args) {
         Player player = Ari.instance.getServer().getPlayerExact(args[1]);
         if (player == null || sender.getName().equals(player.getName())) {
+            Ari.instance.getScheduler().runAtEntity((Player) sender, i -> sender.sendMessage(Ari.instance.getEngine().directRender(Ari.DATA_SERVICE.getValue("function.teleport.unable-player"), (Player) sender)), null);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 发起请求前的检查，额外排除发起者看不见的隐身玩家
+     */
+    public boolean preCheckRequestIsNotPass(CommandSender sender, String[] args) {
+        if (this.preCheckIsNotPass(sender, args)) return true;
+        Player player = Ari.instance.getServer().getPlayerExact(args[1]);
+        if (Ari.instance.getStatusManager().get(PlayerVanishService.class).isHiddenFrom(sender, player)) {
             Ari.instance.getScheduler().runAtEntity((Player) sender, i -> sender.sendMessage(Ari.instance.getEngine().directRender(Ari.DATA_SERVICE.getValue("function.teleport.unable-player"), (Player) sender)), null);
             return true;
         }

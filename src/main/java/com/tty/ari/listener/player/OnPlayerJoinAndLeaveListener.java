@@ -165,6 +165,8 @@ public class OnPlayerJoinAndLeaveListener implements Listener {
             }
 
             FunctionConfig config = Ari.instance.getConfigurationManager().get(FunctionConfig.class);
+            //隐身状态下重新进入的玩家不广播加入信息
+            boolean vanished = Ari.instance.getStatusManager().get(PlayerVanishService.class).isVanished(player);
             if(!player.hasPlayedBefore() && (config.getSpawnFirstJoin() && config.isEnable(TeleportType.SPAWN))) {
                 SpawnLocation spawnLocation = config.getSpawnLocation();
                 if (config.getSpawnLocation() != null) {
@@ -179,12 +181,12 @@ public class OnPlayerJoinAndLeaveListener implements Listener {
                 } else {
                     Ari.instance.getLog().info("server not set spawn location.");
                 }
-                if(this.messageFirstJoin) {
+                if(this.messageFirstJoin && !vanished) {
                     ConfigUtils.t("server.message.on-first-login", player).thenAccept(t -> Ari.instance.getScheduler().run(task -> Bukkit.broadcast(t)));
                     return;
                 }
             }
-            if(this.messageOnLogin) {
+            if(this.messageOnLogin && !vanished) {
                 ConfigUtils.t("server.message.on-login", player).thenAccept(t -> Ari.instance.getScheduler().run(task -> Bukkit.broadcast(t)));
             }
             //添加玩家登录的状态
@@ -215,12 +217,12 @@ public class OnPlayerJoinAndLeaveListener implements Listener {
         Player player = event.getPlayer();
         StatusManager manager = Ari.instance.getStatusManager();
 
-        if (!manager.get(PlayerVanishService.class).isNotHaveState(player)) {
+        boolean vanished = manager.get(PlayerVanishService.class).isVanished(player);
+        if (vanished) {
             event.quitMessage(null);
-            return;
         }
 
-        if(this.messageOnLeave) {
+        if(this.messageOnLeave && !vanished) {
             event.quitMessage(null);
             ConfigUtils.t("server.message.on-leave", player).thenAccept(i -> Ari.instance.getScheduler().run(t -> Bukkit.broadcast(i)));
         }
